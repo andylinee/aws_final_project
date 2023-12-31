@@ -8,32 +8,32 @@ import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
 import { OwnerValidator } from "./validator/OwnerValidator.sol";
 
-import { Account } from "./Account.sol";
+import { AAWallet } from "./AAWallet.sol";
 
-contract AccountFactory {
-    Account public immutable accountImplementation;
+contract AAWalletFactory {
+    AAWallet public immutable accountImplementation;
     OwnerValidator public immutable ownerValidator;
 
     constructor(IEntryPoint _entryPoint, OwnerValidator _ownerValidator) {
-        accountImplementation = new Account(_entryPoint);
+        accountImplementation = new AAWallet(_entryPoint);
         ownerValidator = _ownerValidator;
     }
 
     function createAccount(
         address owner,
         uint256 salt
-    ) public returns (Account) {
+    ) public returns (AAWallet) {
         address addr = getAddress(owner, salt);
         uint256 codeSize = addr.code.length;
         if (codeSize > 0) {
-            return Account(payable(addr));
+            return AAWallet(payable(addr));
         }
-        return Account(
+        return AAWallet(
             payable(
                 new ERC1967Proxy{salt : bytes32(salt)}(
                     address(accountImplementation),
                     abi.encodeCall(
-                        Account.initialize, 
+                        AAWallet.initialize, 
                         (
                             ownerValidator, 
                             abi.encodeCall(OwnerValidator.setOwner, (owner))
@@ -59,7 +59,7 @@ contract AccountFactory {
                     abi.encode(
                         address(accountImplementation),
                         abi.encodeCall(
-                            Account.initialize,
+                            AAWallet.initialize,
                             (
                                 ownerValidator,
                                 abi.encodeCall(OwnerValidator.setOwner, (owner))

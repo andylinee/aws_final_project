@@ -9,8 +9,8 @@ import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgrade
 
 import { IValidator } from "./validator/IValidator.sol";
 
-contract Account is Initializable, UUPSUpgradeable {
-    IEntryPoint public entryPoint;
+contract AAWallet is Initializable, UUPSUpgradeable {
+    IEntryPoint public immutable entryPoint;
     IValidator public ownerValidator;
 
     constructor(IEntryPoint _entryPoint) {
@@ -60,7 +60,7 @@ contract Account is Initializable, UUPSUpgradeable {
         returns (IValidator)
     {
         bytes4 selector = bytes4(callData[:4]);
-        if (selector == Account.execute.selector) {
+        if (selector == AAWallet.execute.selector) {
             address to = abi.decode(callData[4:], (address));
             // TODO: Also check `to` includes validator or not
             if (to == address(this)) {
