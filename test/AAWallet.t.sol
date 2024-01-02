@@ -49,6 +49,25 @@ contract AAWalletTest is AATest {
         assertEq(recipient.balance(), 0.1 ether);
     }
 
+    function testSetOwner() public {
+        Wallet memory newOwner = WalletLib.createRandomWallet(vm);
+
+        UserOperation memory userOp = createUserOp(address(wallet));
+        userOp.callData = abi.encodeCall(
+            AAWallet.execute,
+            (
+                address(ownerValidator),
+                0,
+                abi.encodeCall(OwnerValidator.setOwner, (newOwner.addr()))
+            )
+        );
+        signUserOpEthSignedMessage(owner, userOp);
+
+        handleUserOp(userOp);
+
+        assertEq(ownerValidator.owners(address(wallet)), newOwner.addr());
+    }
+
     function testTransferThroughCustomValidator() public {
         Wallet memory recipient = WalletLib.createRandomWallet(vm);
 
