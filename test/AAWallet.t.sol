@@ -7,7 +7,7 @@ import { UserOperation } from "account-abstraction/interfaces/UserOperation.sol"
 
 import { AAWallet } from "src/AAWallet.sol";
 import { AAWalletFactory } from "src/AAWalletFactory.sol";
-import { OwnerValidator } from "src/validator/OwnerValidator.sol";
+import { OwnerValidator } from "src/validators/OwnerValidator.sol";
 
 import { AATest } from "./utils/AATest.sol";
 import { Wallet, WalletLib } from "./utils/Wallet.sol";
