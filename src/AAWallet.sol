@@ -41,6 +41,17 @@ contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager,
         _;
     }
 
+    function setOwnerValidator(
+        IValidator _ownerValidator,
+        bytes calldata _ownerValidatorInitData
+    ) external onlySelf {
+        IValidator prevOwnerValidator = ownerValidator;
+        ownerValidator = _ownerValidator;
+        _addValidator(_ownerValidator, _ownerValidatorInitData);
+        // Remove previous owner validator to avoid executing wallet by outdated validation mechanism.
+        _removeValidator(prevOwnerValidator);
+    }
+
     function validateUserOp(
         UserOperation calldata userOp,
         bytes32 userOpHash,

@@ -50,7 +50,7 @@ contract AAWalletTest is AATest {
         assertEq(recipient.balance(), 0.1 ether);
     }
 
-    function testSetOwner() public {
+    function testConfigureOwnerValidator() public {
         Wallet memory newOwner = WalletLib.createRandomWallet(vm);
 
         UserOperation memory userOp = createUserOp(address(wallet));
@@ -67,6 +67,72 @@ contract AAWalletTest is AATest {
         handleUserOp(userOp);
 
         assertEq(ownerValidator.owners(address(wallet)), newOwner.addr());
+    }
+
+    function testSetOwnerValidator() public {
+        // Migrate to new owner validator
+        Wallet memory newOwner = WalletLib.createRandomWallet(vm);
+        OwnerValidator newOwnerValidator = new OwnerValidator();
+
+        {
+            UserOperation memory userOp = createUserOp(address(wallet));
+            userOp.callData = abi.encodeCall(
+                AAWallet.execute,
+                (
+                    address(wallet),
+                    0,
+                    abi.encodeCall(
+                        AAWallet.setOwnerValidator,
+                        (
+                            newOwnerValidator,
+                            abi.encodeCall(
+                                OwnerValidator.setOwner, (newOwner.addr())
+                                )
+                        )
+                        )
+                )
+            );
+            signUserOpEthSignedMessage(owner, userOp);
+
+            handleUserOp(userOp);
+        }
+
+        // Should not be able to manage account by old owner
+        {
+            UserOperation memory userOp = createUserOp(address(wallet));
+            // Use old owner signature to set owner on new owner validator
+            userOp.callData = abi.encodeCall(
+                AAWallet.execute,
+                (
+                    address(newOwnerValidator),
+                    0,
+                    abi.encodeCall(OwnerValidator.setOwner, (owner.addr()))
+                )
+            );
+            signUserOpEthSignedMessage(owner, userOp);
+
+            expectRevertFailedOp("AA24 signature error");
+            handleUserOp(userOp);
+        }
+
+        // Should be able to manage account by new owner
+        {
+            UserOperation memory userOp = createUserOp(address(wallet));
+            // Use new owner signature to set owner on new owner validator
+            userOp.callData = abi.encodeCall(
+                AAWallet.execute,
+                (
+                    address(newOwnerValidator),
+                    0,
+                    abi.encodeCall(OwnerValidator.setOwner, (owner.addr()))
+                )
+            );
+            signUserOpEthSignedMessage(newOwner, userOp);
+
+            handleUserOp(userOp);
+
+            assertEq(newOwnerValidator.owners(address(wallet)), owner.addr());
+        }
     }
 
     function testCannotExecuteValidatorWhenNotAuthorized() public {
