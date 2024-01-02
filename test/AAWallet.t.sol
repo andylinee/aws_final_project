@@ -28,10 +28,10 @@ contract AAWalletTest is AATest {
 
     function setUp() public {
         vm.deal(address(wallet), 1 ether);
+        _addValidator(_owner, _wallet, nullValidator, bytes(""));
     }
 
     function testSetUp() public {
-        assertEq(address(wallet).balance, 1 ether);
         assertEq(ownerValidator.owners(address(wallet)), owner.addr());
     }
 
@@ -49,9 +49,7 @@ contract AAWalletTest is AATest {
         assertEq(recipient.balance(), 0.1 ether);
     }
 
-    function testTransferByCustomValidator() public {
-        _addValidator(owner, wallet, nullValidator, bytes(""));
-
+    function testTransferThroughCustomValidator() public {
         Wallet memory recipient = WalletLib.createRandomWallet(vm);
 
         UserOperation memory userOp = createUserOp(address(wallet));
@@ -64,6 +62,55 @@ contract AAWalletTest is AATest {
         handleUserOp(userOp);
 
         assertEq(recipient.balance(), 0.1 ether);
+    }
+
+    function testCannotCallSelfThroughCustomValidator() public {
+        UserOperation memory userOp = createUserOp(address(wallet));
+        userOp.callData = abi.encodeCall(
+            ValidatorManager.addValidator, (IValidator(address(0)), bytes(""))
+        );
+        // Use null validator
+        userOp.signature = abi.encodePacked(address(nullValidator));
+
+        expectRevertFailedOp("AA23 reverted: ECDSA: invalid signature length");
+        handleUserOp(userOp);
+    }
+
+    function testCannotExecuteSelfThroughCustomValidator() public {
+        UserOperation memory userOp = createUserOp(address(wallet));
+        userOp.callData = abi.encodeCall(
+            AAWallet.execute,
+            (
+                address(wallet),
+                0,
+                abi.encodeCall(
+                    ValidatorManager.addValidator,
+                    (IValidator(address(0)), bytes(""))
+                    )
+            )
+        );
+        // Use null validator
+        userOp.signature = abi.encodePacked(address(nullValidator));
+
+        expectRevertFailedOp("AA23 reverted: ECDSA: invalid signature length");
+        handleUserOp(userOp);
+    }
+
+    function testCannotExecuteValidatorThroughCustomValidator() public {
+        UserOperation memory userOp = createUserOp(address(wallet));
+        userOp.callData = abi.encodeCall(
+            AAWallet.execute,
+            (
+                address(ownerValidator),
+                0,
+                abi.encodeCall(OwnerValidator.setOwner, (address(0)))
+            )
+        );
+        // Use null validator
+        userOp.signature = abi.encodePacked(address(nullValidator));
+
+        expectRevertFailedOp("AA23 reverted: ECDSA: invalid signature length");
+        handleUserOp(userOp);
     }
 
     function _addValidator(

@@ -25,7 +25,7 @@ contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager 
         bytes calldata _ownerValidatorInitData
     ) external initializer {
         ownerValidator = _ownerValidator;
-        Executor.call(address(_ownerValidator), 0, _ownerValidatorInitData);
+        _addValidator(_ownerValidator, _ownerValidatorInitData);
     }
 
     receive() external payable { }
@@ -65,8 +65,10 @@ contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager 
         bytes4 selector = bytes4(userOp[:4]);
         if (selector == AAWallet.execute.selector) {
             address to = abi.decode(userOp[4:], (address));
-            // TODO: Also check `to` includes validator or not
             if (to == address(this)) {
+                return ownerValidator;
+            }
+            if (validators[to]) {
                 return ownerValidator;
             }
 
