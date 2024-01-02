@@ -6,7 +6,7 @@ import { IEntryPoint } from "account-abstraction/interfaces/IEntryPoint.sol";
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";
 
-import { OwnerValidator } from "./validator/OwnerValidator.sol";
+import { OwnerValidator } from "./validators/OwnerValidator.sol";
 
 import { AAWallet } from "./AAWallet.sol";
 
@@ -33,9 +33,9 @@ contract AAWalletFactory {
                 new ERC1967Proxy{salt : bytes32(salt)}(
                     address(accountImplementation),
                     abi.encodeCall(
-                        AAWallet.initialize, 
+                        AAWallet.initialize,
                         (
-                            ownerValidator, 
+                            ownerValidator,
                             abi.encodeCall(OwnerValidator.setOwner, (owner))
                         )
                     )

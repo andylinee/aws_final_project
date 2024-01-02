@@ -15,7 +15,7 @@ abstract contract PluginManager is SelfAuth {
         mapping(address => mapping(bytes4 => bool)) permitted;
     }
 
-    // TODO: Refactor to linked list
+    // TODO: Refactor to structured storage
     mapping(address => PluginConfig) plugins;
 
     modifier onlyAuthorizedPlugin(

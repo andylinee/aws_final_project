@@ -29,7 +29,7 @@ contract AAWalletTest is AATest {
 
     function setUp() public {
         vm.deal(address(wallet), 1 ether);
-        _addValidator(_owner, _wallet, nullValidator, bytes(""));
+        _addValidator(owner, wallet, nullValidator, bytes(""));
     }
 
     function testSetUp() public {

@@ -36,11 +36,6 @@ contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager,
         _;
     }
 
-    modifier onlySelf() {
-        require(msg.sender == address(this));
-        _;
-    }
-
     function setOwnerValidator(
         IValidator _ownerValidator,
         bytes calldata _ownerValidatorInitData
@@ -75,41 +70,45 @@ contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager,
         view
         returns (IValidator)
     {
-        bytes4 selector = bytes4(userOp[:4]);
+        bytes4 selector = bytes4(userOp.callData[:4]);
 
         if (selector == AAWallet.execute.selector) {
-            address to = abi.decode(userOp[4:], (address));
+            address to = abi.decode(userOp.callData[4:], (address));
+            // If execution target is account itself or validator,
+            // the call requires to be validated by owner validator.
             if (to == address(this) || validators[to]) {
                 return ownerValidator;
             }
 
-            // Allow custom validator when no call to self
+            // Allow custom validator when not calling to account itself.
             address validator =
                 address(bytes20(userOp.signature[:20]));
             if (validators[validator]) {
                 return IValidator(validator);
             }
-            // If validator is not valid, fallback to owner validator.
+            // If custom validator is not valid, fallback to owner validator.
             return ownerValidator;
         }
 
         if (selector == AAWallet.executeBatch.selector) {
             address[] memory to = abi.decode(userOp.callData[4:], (address[]));
             for (uint256 i; i < to.length; i++) {
+                // If at least one execution target is account itself or validator,
+                // the call requires to be validated by owner validator.
                 if (to[i] == address(this) || validators[to[i]]) {
                     return ownerValidator;
                 }
             }
-            // Allow custom validator when no call to self
+            // Allow custom validator when not calling to account itself.
             address validator =
                 address(bytes20(userOp.signature[:20]));
             if (validators[validator]) {
                 return IValidator(validator);
             }
-            // If validator is not valid, fallback to owner validator.
+            // If custom validator is not valid, fallback to owner validator.
             return ownerValidator;
         }
-        // For other functions on wallet, it must require owner validation.
+        // For other functions on wallet, it must require validated by owner validator.
         return ownerValidator;
     }
 
