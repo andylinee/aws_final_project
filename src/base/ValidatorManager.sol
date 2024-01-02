@@ -34,4 +34,12 @@ abstract contract ValidatorManager is SelfAuth {
     function _removeValidator(IValidator validator) internal {
         delete validators[address(validator)];
     }
+
+    function isValidatorAuthorized(address validator)
+        external
+        view
+        returns (bool)
+    {
+        return validators[validator];
+    }
 }

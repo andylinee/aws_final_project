@@ -16,6 +16,20 @@ import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import { Wallet, WalletLib } from "./Wallet.sol";
 
 abstract contract AATest is Test {
+    /**
+     * An event emitted if the UserOperation "callData" reverted with non-zero length
+     * @param userOpHash the request unique identifier.
+     * @param sender the sender of this request
+     * @param nonce the nonce used in the request
+     * @param revertReason - the return bytes from the (reverted) call to "callData".
+     */
+    event UserOperationRevertReason(
+        bytes32 indexed userOpHash,
+        address indexed sender,
+        uint256 nonce,
+        bytes revertReason
+    );
+
     using ECDSA for bytes32;
     using UserOperationLib for UserOperation;
     using WalletLib for Wallet;

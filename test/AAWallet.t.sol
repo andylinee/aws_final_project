@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 import { console } from "forge-std/console.sol";
 
+import { IEntryPoint } from "account-abstraction/interfaces/IEntryPoint.sol";
 import { UserOperation } from "account-abstraction/interfaces/UserOperation.sol";
 
 import { ValidatorManager } from "src/base/ValidatorManager.sol";
@@ -66,6 +67,30 @@ contract AAWalletTest is AATest {
         handleUserOp(userOp);
 
         assertEq(ownerValidator.owners(address(wallet)), newOwner.addr());
+    }
+
+    function testCannotExecuteValidatorWhenNotAuthorized() public {
+        OwnerValidator unauthroizedValidator = new OwnerValidator();
+
+        UserOperation memory userOp = createUserOp(address(wallet));
+        userOp.callData = abi.encodeCall(
+            AAWallet.execute,
+            (
+                address(unauthroizedValidator),
+                0,
+                abi.encodeCall(OwnerValidator.setOwner, (address(0)))
+            )
+        );
+        signUserOpEthSignedMessage(owner, userOp);
+
+        vm.expectEmit(true, true, true, true);
+        emit UserOperationRevertReason(
+            getUserOpHash(userOp),
+            address(wallet),
+            userOp.nonce,
+            abi.encodePacked(OwnerValidator.ValidatorNotAuthorized.selector)
+        );
+        handleUserOp(userOp);
     }
 
     function testTransferThroughCustomValidator() public {
