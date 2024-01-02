@@ -47,6 +47,7 @@ contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager 
     ) external onlyEntryPoint returns (uint256 validationData) {
         IValidator validator = _getValidator(userOp);
         validationData = validator.validateUserOp(userOp, userOpHash);
+
         if (missingAccountFunds != 0) {
             (bool success,) = payable(msg.sender).call{
                 value: missingAccountFunds,
@@ -70,11 +71,14 @@ contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager 
                 return ownerValidator;
             }
 
-            IValidator validator = IValidator(address(bytes20(userOp.signature[:20])));
-            if (!validators[address(validator)]) {
-                validator = ownerValidator;
+            // Allow custom validator when no call to self
+            address validator =
+                address(bytes20(userOp.signature[:20]));
+            if (validators[validator]) {
+                return IValidator(validator);
             }
-            return validator;
+            // If validator is not valid, fallback to owner validator.
+            return ownerValidator;
         }
 
         if (selector == AAWallet.executeBatch.selector) {
@@ -84,13 +88,16 @@ contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager 
                     return ownerValidator;
                 }
             }
-            IValidator validator = IValidator(address(bytes20(userOp.signature[:20])));
-            if (!validators[address(validator)]) {
-                validator = ownerValidator;
+            // Allow custom validator when no call to self
+            address validator =
+                address(bytes20(userOp.signature[:20]));
+            if (validators[validator]) {
+                return IValidator(validator);
             }
-            return validator;
+            // If validator is not valid, fallback to owner validator.
+            return ownerValidator;
         }
-
+        // For other functions on wallet, it must require owner validation.
         return ownerValidator;
     }
 
