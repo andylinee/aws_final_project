@@ -45,7 +45,7 @@ contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager 
         bytes32 userOpHash,
         uint256 missingAccountFunds
     ) external onlyEntryPoint returns (uint256 validationData) {
-        IValidator validator = _getValidator(userOp.callData);
+        IValidator validator = _getValidator(userOp);
         validationData = validator.validateUserOp(userOp, userOpHash);
         if (missingAccountFunds != 0) {
             (bool success,) = payable(msg.sender).call{
@@ -57,19 +57,23 @@ contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager 
         }
     }
 
-    function _getValidator(bytes calldata callData)
+    function _getValidator(UserOperation calldata userOp)
         internal
         view
         returns (IValidator)
     {
-        bytes4 selector = bytes4(callData[:4]);
+        bytes4 selector = bytes4(userOp[:4]);
         if (selector == AAWallet.execute.selector) {
-            address to = abi.decode(callData[4:], (address));
+            address to = abi.decode(userOp[4:], (address));
             // TODO: Also check `to` includes validator or not
             if (to == address(this)) {
                 return ownerValidator;
             }
-            // TODO: Extract validator from `signature`
+
+            address validator = address(bytes20(userOp.signature[:20]));
+            if (validators[validator]) {
+                return IValidator(validator);
+            }
         }
         return ownerValidator;
     }

@@ -14,11 +14,24 @@ abstract contract ValidatorManager is SelfAuth {
         IValidator validator,
         bytes calldata validatorInitData
     ) external onlySelf {
+        _addValidator(validator, validatorInitData);
+    }
+
+    function _addValidator(
+        IValidator validator,
+        bytes calldata validatorInitData
+    ) internal {
         validators[address(validator)] = true;
-        Executor.call(address(validator), 0, validatorInitData);
+        if (validatorInitData.length > 0) {
+            Executor.call(address(validator), 0, validatorInitData);
+        }
     }
 
     function removeValidator(IValidator validator) external onlySelf {
+        _removeValidator(validator);
+    }
+
+    function _removeValidator(IValidator validator) internal {
         delete validators[address(validator)];
     }
 }
