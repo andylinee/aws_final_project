@@ -8,7 +8,7 @@ import { IValidator } from "src/interfaces/IValidator.sol";
 import { IValidatorManager } from "src/interfaces/IValidatorManager.sol";
 
 contract OwnerValidator is IValidator {
-    error ValidatorNotAuthorized();
+    error ValidatorUnauthorized();
 
     using ECDSA for bytes32;
 
@@ -20,7 +20,7 @@ contract OwnerValidator is IValidator {
                     address(this)
                 )
             ) {
-                revert ValidatorNotAuthorized();
+                revert ValidatorUnauthorized();
             }
         }
         _;

@@ -88,7 +88,7 @@ contract AAWalletTest is AATest {
             getUserOpHash(userOp),
             address(wallet),
             userOp.nonce,
-            abi.encodePacked(OwnerValidator.ValidatorNotAuthorized.selector)
+            abi.encodePacked(OwnerValidator.ValidatorUnauthorized.selector)
         );
         handleUserOp(userOp);
     }
