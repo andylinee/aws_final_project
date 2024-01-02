@@ -7,12 +7,13 @@ import { UserOperation } from "account-abstraction/interfaces/UserOperation.sol"
 import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";
 
+import { PluginManager } from "./base/PluginManager.sol";
 import { SelfAuth } from "./base/SelfAuth.sol";
 import { ValidatorManager } from "./base/ValidatorManager.sol";
 import { IValidator } from "./interfaces/IValidator.sol";
 import { Executor } from "./libraries/Executor.sol";
 
-contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager {
+contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager, PluginManager {
     IEntryPoint public immutable entryPoint;
     IValidator public ownerValidator;
 
@@ -83,7 +84,7 @@ contract AAWallet is Initializable, UUPSUpgradeable, SelfAuth, ValidatorManager 
 
         if (selector == AAWallet.executeBatch.selector) {
             address[] memory to = abi.decode(userOp.callData[4:], (address[]));
-            for (uint i; i < to.length; i++) {
+            for (uint256 i; i < to.length; i++) {
                 if (to[i] == address(this) || validators[to[i]]) {
                     return ownerValidator;
                 }
