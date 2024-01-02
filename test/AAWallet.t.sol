@@ -64,6 +64,32 @@ contract AAWalletTest is AATest {
         assertEq(recipient.balance(), 0.1 ether);
     }
 
+    function testTransferInBatchThroughCustomValidator() public {
+        Wallet memory recipient = WalletLib.createRandomWallet(vm);
+
+        address[] memory to = new address[](2);
+        to[0] = recipient.addr();
+        to[1] = recipient.addr();
+
+        uint256[] memory value = new uint256[](2);
+        value[0] = 0.1 ether;
+        value[1] = 0.1 ether;
+
+        bytes[] memory data = new bytes[](2);
+        data[0] = bytes("");
+        data[1] = bytes("");
+
+        UserOperation memory userOp = createUserOp(address(wallet));
+        userOp.callData =
+            abi.encodeCall(AAWallet.executeBatch, (to, value, data));
+        // Use null validator
+        userOp.signature = abi.encodePacked(address(nullValidator));
+
+        handleUserOp(userOp);
+
+        assertEq(recipient.balance(), 0.2 ether);
+    }
+
     function testCannotCallSelfThroughCustomValidator() public {
         UserOperation memory userOp = createUserOp(address(wallet));
         userOp.callData = abi.encodeCall(
@@ -89,6 +115,33 @@ contract AAWalletTest is AATest {
                     )
             )
         );
+        // Use null validator
+        userOp.signature = abi.encodePacked(address(nullValidator));
+
+        expectRevertFailedOp("AA23 reverted: ECDSA: invalid signature length");
+        handleUserOp(userOp);
+    }
+
+    function testCannotExecuteSelfInBatchThroughCustomValidator() public {
+        Wallet memory recipient = WalletLib.createRandomWallet(vm);
+
+        address[] memory to = new address[](2);
+        to[0] = recipient.addr();
+        to[1] = address(wallet);
+
+        uint256[] memory value = new uint256[](2);
+        value[0] = 0;
+        value[1] = 0;
+
+        bytes[] memory data = new bytes[](2);
+        data[0] = bytes("");
+        data[1] = abi.encodeCall(
+            ValidatorManager.addValidator, (IValidator(address(0)), bytes(""))
+        );
+
+        UserOperation memory userOp = createUserOp(address(wallet));
+        userOp.callData =
+            abi.encodeCall(AAWallet.executeBatch, (to, value, data));
         // Use null validator
         userOp.signature = abi.encodePacked(address(nullValidator));
 
