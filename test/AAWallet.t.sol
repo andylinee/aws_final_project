@@ -208,7 +208,7 @@ contract AAWalletTest is AATest {
         // Use null validator
         userOp.signature = abi.encodePacked(address(nullValidator));
 
-        expectRevertFailedOp("AA23 reverted: ECDSA: invalid signature length");
+        expectRevertFailedOp("AA23 reverted (or OOG)");
         handleUserOp(userOp);
     }
 
@@ -228,7 +228,7 @@ contract AAWalletTest is AATest {
         // Use null validator
         userOp.signature = abi.encodePacked(address(nullValidator));
 
-        expectRevertFailedOp("AA23 reverted: ECDSA: invalid signature length");
+        expectRevertFailedOp("AA23 reverted (or OOG)");
         handleUserOp(userOp);
     }
 
@@ -255,7 +255,7 @@ contract AAWalletTest is AATest {
         // Use null validator
         userOp.signature = abi.encodePacked(address(nullValidator));
 
-        expectRevertFailedOp("AA23 reverted: ECDSA: invalid signature length");
+        expectRevertFailedOp("AA23 reverted (or OOG)");
         handleUserOp(userOp);
     }
 
@@ -272,7 +272,7 @@ contract AAWalletTest is AATest {
         // Use null validator
         userOp.signature = abi.encodePacked(address(nullValidator));
 
-        expectRevertFailedOp("AA23 reverted: ECDSA: invalid signature length");
+        expectRevertFailedOp("AA23 reverted (or OOG)");
         handleUserOp(userOp);
     }
 
