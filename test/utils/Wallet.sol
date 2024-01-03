@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import { Vm } from "forge-std/Vm.sol";
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 struct Wallet {
     Vm vm;
@@ -45,7 +46,7 @@ library WalletLib {
         Wallet memory w,
         bytes32 digest
     ) internal pure returns (uint8 v, bytes32 r, bytes32 s) {
-        return w.sign(ECDSA.toEthSignedMessageHash(digest));
+        return w.sign(MessageHashUtils.toEthSignedMessageHash(digest));
     }
 }
 

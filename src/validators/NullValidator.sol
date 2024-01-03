@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { UserOperation } from "account-abstraction/interfaces/UserOperation.sol";
+import { UserOperation } from "lib/account-abstraction/contracts/interfaces/UserOperation.sol";
 
 import { IValidator } from "src/interfaces/IValidator.sol";
 

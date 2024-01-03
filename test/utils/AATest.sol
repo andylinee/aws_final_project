@@ -5,13 +5,14 @@ import { console } from "forge-std/console.sol";
 import { Test } from "forge-std/Test.sol";
 import { Vm } from "forge-std/Vm.sol";
 
-import { EntryPoint } from "account-abstraction/core/EntryPoint.sol";
-import { IEntryPoint } from "account-abstraction/interfaces/IEntryPoint.sol";
+import { EntryPoint } from "lib/account-abstraction/contracts/core/EntryPoint.sol";
+import { IEntryPoint } from "lib/account-abstraction/contracts/interfaces/IEntryPoint.sol";
 import {
     UserOperation, UserOperationLib
-} from "account-abstraction/interfaces/UserOperation.sol";
+} from "lib/account-abstraction/contracts/interfaces/UserOperation.sol";
 
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 import { Wallet, WalletLib } from "./Wallet.sol";
 
@@ -30,6 +31,7 @@ abstract contract AATest is Test {
         bytes revertReason
     );
 
+    using MessageHashUtils for bytes32;
     using ECDSA for bytes32;
     using UserOperationLib for UserOperation;
     using WalletLib for Wallet;

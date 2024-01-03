@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { IEntryPoint } from "account-abstraction/interfaces/IEntryPoint.sol";
-import { UserOperation } from "account-abstraction/interfaces/UserOperation.sol";
+import { IEntryPoint } from "lib/account-abstraction/contracts/interfaces/IEntryPoint.sol";
+import { UserOperation } from "lib/account-abstraction/contracts/interfaces/UserOperation.sol";
 
 import { Initializable } from "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import { UUPSUpgradeable } from "@openzeppelin/contracts/proxy/utils/UUPSUpgradeable.sol";

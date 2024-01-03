@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { IEntryPoint } from "account-abstraction/interfaces/IEntryPoint.sol";
+import { IEntryPoint } from "lib/account-abstraction/contracts/interfaces/IEntryPoint.sol";
 
 import { ERC1967Proxy } from "@openzeppelin/contracts/proxy/ERC1967/ERC1967Proxy.sol";
 import { Create2 } from "@openzeppelin/contracts/utils/Create2.sol";

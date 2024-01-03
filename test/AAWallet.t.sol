@@ -3,8 +3,8 @@ pragma solidity ^0.8.0;
 
 import { console } from "forge-std/console.sol";
 
-import { IEntryPoint } from "account-abstraction/interfaces/IEntryPoint.sol";
-import { UserOperation } from "account-abstraction/interfaces/UserOperation.sol";
+import { IEntryPoint } from "lib/account-abstraction/contracts/interfaces/IEntryPoint.sol";
+import { UserOperation } from "lib/account-abstraction/contracts/interfaces/UserOperation.sol";
 
 import { ValidatorManager } from "src/base/ValidatorManager.sol";
 import { IValidator } from "src/interfaces/IValidator.sol";

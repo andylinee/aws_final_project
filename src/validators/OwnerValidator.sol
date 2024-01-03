@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17;
 
-import { UserOperation } from "account-abstraction/interfaces/UserOperation.sol";
+import { UserOperation } from "lib/account-abstraction/contracts/interfaces/UserOperation.sol";
 import { ECDSA } from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import { MessageHashUtils } from "@openzeppelin/contracts/utils/cryptography/MessageHashUtils.sol";
 
 import { IValidator } from "src/interfaces/IValidator.sol";
 import { IValidatorManager } from "src/interfaces/IValidatorManager.sol";
@@ -10,6 +11,7 @@ import { IValidatorManager } from "src/interfaces/IValidatorManager.sol";
 contract OwnerValidator is IValidator {
     error ValidatorUnauthorized();
 
+    using MessageHashUtils for bytes32;
     using ECDSA for bytes32;
 
     modifier whenValidatorAuthorized() {
