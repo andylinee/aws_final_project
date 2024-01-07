@@ -4,7 +4,7 @@
 
 
 ## How to build
-The project is built with foundry. Install it if you haven't.
+The project is built with [foundry](https://github.com/foundry-rs/foundry). Install it if you haven't.
 
 ```bash
 curl -L https://foundry.paradigm.xyz | bash
