@@ -1,7 +1,11 @@
 # AA Wallet implemented from ERC 7337
 
 ## Features
-
+- Transfer ETH through Owner Validator
+    - `setOwnerValidator()`
+- Transfer ETH through Custom Validator
+    - `execute()`
+    - `executeBatch()`
 
 ## How to build
 The project is built with [foundry](https://github.com/foundry-rs/foundry). Install it if you haven't.
